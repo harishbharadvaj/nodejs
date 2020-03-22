@@ -1,12 +1,14 @@
 //Load HTTP module
 
-const http = require("http");
-const hostname = '127.0.0.1';
-//const sfdx = require('sfdx-node'); 
+const body_parser = require('body-parser');
 const port = process.env.PORT || 3000;
+const { exec } = require('child_process');
+//var fs = require('fs');
+//var program = require('commander');
 
 const express = require('express')
 const app = express();
+app.use(body_parser.json());
 
 app.post('/deploy',async(req,res)=>{
   const resBody = req.body;
