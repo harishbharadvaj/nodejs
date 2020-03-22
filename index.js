@@ -2,29 +2,31 @@
 
 const http = require("http");
 const hostname = '127.0.0.1';
-const sfdx = require('sfdx-node');
+//const sfdx = require('sfdx-node');
 const port = process.env.PORT || 3000;
 
 const express = require('express')
 const app = express();
 
-app.get('/list', (req, res) => {
-    res.setHeader('Content-Type','application/json');
-    sfdx.alias.list()
-    .then((listResult) => {
-      res.send(listResult);
-    });
- 
+app.post('/deploy',async(req,res)=>{
+  const resBody = req.body;
+  console.log(resBody);
+  let result = await runCommand("sfdx force:config:set instanceUrl="+resBody.instanceUrl+" --global");
+  let deployResult = await runCommand("sfdx force:package:install -p "+resBody.packageId+" -u "+resBody.accessToken+' --installationkey '+resBody.installationkey+" --json");
+  console.log(deployResult);
+  res.setHeader('Content-Type','application/json');
+  res.send(deployResult);
 });
 
-app.get('/auth',(req,res) =>{
-    sfdx.auth.webLogin({
-        setdefaultdevhubusername: true,
-        setalias: 'test'
-      }).then( (result) => {
-            console.log('Web Login',result);
-      });
+app.post('/deployreport',async(req,res)=>{
+  const resBody = req.body;
+  console.log(resBody);
+  let deployResult = await runCommand("sfdx force:package:install:report -i "+resBody.jobId+" -u "+resBody.accessToken+" --json");
+  console.log(deployResult);
+  res.setHeader('Content-Type','application/json');
+  res.send(deployResult);
 });
+
 
 app.listen(port, () => {
   console.log('Example app listening on port 8000!')
